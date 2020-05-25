@@ -305,6 +305,9 @@ class DomainExtractorExtractionTestCase(
         self,
     ):
         self.assertTrue(
+            expr=self.domain_extractor.is_valid_domain('http://domain.com'),
+        )
+        self.assertTrue(
             expr=self.domain_extractor.is_valid_domain('domain.com'),
         )
         self.assertTrue(
@@ -382,7 +385,6 @@ class DomainExtractorExtractionTestCase(
         self.assertFalse(
             expr=self.domain_extractor.is_valid_domain('\xF0\x9F\x98\x81nonalphanum.com'),
         )
-
         self.assertFalse(
             expr=self.domain_extractor.is_valid_domain('.com'),
         )
@@ -397,6 +399,20 @@ class DomainExtractorExtractionTestCase(
         )
         self.assertFalse(
             expr=self.domain_extractor.is_valid_domain('com.'),
+        )
+
+    def test_extract_protocol_removed(
+        self,
+    ):
+        self.assertEqual(
+            first=self.domain_extractor.extract(
+                'http://www.test.com',
+            ),
+            second={
+                'domain': 'test',
+                'subdomain': 'www',
+                'suffix': 'com',
+            },
         )
 
 

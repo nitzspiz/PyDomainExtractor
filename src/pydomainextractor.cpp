@@ -109,6 +109,10 @@ class DomainExtractor {
             ) {
                 throw std::runtime_error("Invalid domain detected");
             }
+            std::size_t protocol_start_position = domain.find("://");
+            if (protocol_start_position != std::string::npos){
+                domain = domain.substr(protocol_start_position + 3, domain.length() - protocol_start_position - 3);
+            }
 
             for (auto & domain_char : domain) {
                 if (domain_char >= 'A' && domain_char <= 'Z') {
@@ -217,6 +221,9 @@ class DomainExtractor {
                 std::u16string domain_part_utf16 = std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t>{}.from_bytes(domain_part.data());
                 for (const auto & ch : domain_part_utf16) {
                     if (std::iswalnum(ch) == false && ch != '-') {
+                        if ((ch == '/' || ch == ':') && (domain_part.find("://") != std::string::npos)){
+                            continue;
+                        }
                         return false;
                     }
                 }
