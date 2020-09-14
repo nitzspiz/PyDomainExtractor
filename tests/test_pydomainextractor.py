@@ -661,7 +661,7 @@ class DomainExtractorTldExtractTestCase(
                 url,
             )
 
-    def test_punycode(
+    def test_punycode1(
         self,
     ):
         self.assertEqual(
@@ -674,6 +674,10 @@ class DomainExtractorTldExtractTestCase(
                 'suffix': 'xn--p1ai',
             },
         )
+
+    def test_punycode2(
+        self,
+    ):
         self.assertEqual(
             first=self.domain_extractor.extract_from_url(
                 'http://xN--h1alffa9f.xn--p1ai',
@@ -684,6 +688,10 @@ class DomainExtractorTldExtractTestCase(
                 'suffix': 'xn--p1ai',
             },
         )
+
+    def test_punycode3(
+        self,
+    ):
         self.assertEqual(
             first=self.domain_extractor.extract_from_url(
                 'http://XN--h1alffa9f.xn--p1ai',
@@ -694,6 +702,10 @@ class DomainExtractorTldExtractTestCase(
                 'suffix': 'xn--p1ai',
             },
         )
+
+    def test_punycode4(
+        self,
+    ):    
         self.assertEqual(
             first=self.domain_extractor.extract_from_url(
                 'xn--tub-1m9d15sfkkhsifsbqygyujjrw602gk4li5qqk98aca0w.google.com',
@@ -777,7 +789,7 @@ class DomainExtractorTldExtractTestCase(
             },
         )
 
-    def test_scheme(
+    def test_scheme_https(
         self,
     ):
         self.assertEqual(
@@ -790,6 +802,10 @@ class DomainExtractorTldExtractTestCase(
                 'suffix': 'com',
             },
         )
+
+    def test_scheme_ssh(
+        self,
+    ):
         self.assertEqual(
             first=self.domain_extractor.extract_from_url(
                 'ssh://mail.google.com/mail',
@@ -800,6 +816,10 @@ class DomainExtractorTldExtractTestCase(
                 'suffix': 'com',
             },
         )
+
+    def test_scheme(
+        self,
+    ):
         self.assertEqual(
             first=self.domain_extractor.extract_from_url(
                 '//mail.google.com/mail',
@@ -810,6 +830,10 @@ class DomainExtractorTldExtractTestCase(
                 'suffix': 'com',
             },
         )
+
+    def test_no_scheme(
+        self,
+    ):
         self.assertEqual(
             first=self.domain_extractor.extract_from_url(
                 'mail.google.com/mail',
