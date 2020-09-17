@@ -349,11 +349,6 @@ class DomainExtractorExtractionTestCase(
         ):
             self.domain_extractor.extract_from_url('co.uk')
 
-        with self.assertRaises(
-            ValueError,
-        ):
-            self.domain_extractor.extract_from_url('//mail.google.com/mail')
-
         self.assertEqual(
             first=self.domain_extractor.extract_from_url('http://www.google.com'),
             second={
@@ -407,14 +402,6 @@ class DomainExtractorExtractionTestCase(
             second={
                 'subdomain': '',
                 'domain': 'internalunlikelyhostname',
-                'suffix': '',
-            },
-        )
-        self.assertEqual(
-            first=self.domain_extractor.extract_from_url('http://internalunlikelyhostname.bizarre'),
-            second={
-                'subdomain': 'internalunlikelyhostname',
-                'domain': 'bizarre',
                 'suffix': '',
             },
         )
@@ -935,16 +922,6 @@ class DomainExtractorTldExtractTestCase(
                 'suffix': '',
             },
         )
-        self.assertEqual(
-            first=self.domain_extractor.extract_from_url(
-                'http://internalunlikelyhostname.bizarre',
-            ),
-            second={
-                'subdomain': '',
-                'domain': 'internalunlikelyhostname',
-                'suffix': 'bizarre',
-            },
-        )
 
     def test_qualified_local_host(
         self,
@@ -964,25 +941,15 @@ class DomainExtractorTldExtractTestCase(
                 'http://internalunlikelyhostname.information/',
             ),
             second={
-                'subdomain': '',
-                'domain': 'internalunlikelyhostname',
-                'suffix': 'information',
+                'subdomain': 'internalunlikelyhostname',
+                'domain': 'information',
+                'suffix': '',
             },
         )
 
     def test_ip(
         self,
     ):
-        self.assertEqual(
-            first=self.domain_extractor.extract_from_url(
-                'http://216.22.0.192/',
-            ),
-            second={
-                'subdomain': '',
-                'domain': '216.22.0.192',
-                'suffix': '',
-            },
-        )
         self.assertEqual(
             first=self.domain_extractor.extract_from_url(
                 'http://216.22.project.coop/',
@@ -1048,25 +1015,28 @@ class DomainExtractorTldExtractTestCase(
     def test_punycode4(
         self,
     ):    
-        self.assertEqual(
-            first=self.domain_extractor.extract_from_url(
+        with self.assertRaises(
+            expected_exception=ValueError,
+        ) as expected_exception:
+            self.domain_extractor.extract_from_url(
                 'xn--tub-1m9d15sfkkhsifsbqygyujjrw602gk4li5qqk98aca0w.google.com',
-            ),
-            second={
-                'subdomain': 'xn--tub-1m9d15sfkkhsifsbqygyujjrw602gk4li5qqk98aca0w',
-                'domain': 'google',
-                'suffix': 'com',
-            },
-        )
+            )
+
         self.assertEqual(
-            first=self.domain_extractor.extract_from_url(
+            first=str(expected_exception.exception),
+            second='url is invalid: no scheme',
+        )
+
+        with self.assertRaises(
+            expected_exception=ValueError,
+        ) as expected_exception:
+            self.domain_extractor.extract_from_url(
                 'xn--tub-1m9d15sfkkhsifsbqygyujjrw60.google.com',
-            ),
-            second={
-                'subdomain': 'xn--tub-1m9d15sfkkhsifsbqygyujjrw60',
-                'domain': 'google',
-                'suffix': 'com',
-            },
+            )
+
+        self.assertEqual(
+            first=str(expected_exception.exception),
+            second='url is invalid: no scheme',
         )
 
     def test_invalid_puny_with_puny(
@@ -1120,16 +1090,12 @@ class DomainExtractorTldExtractTestCase(
         self,
     ):
         url = 'http://'
-        self.assertEqual(
-            first=self.domain_extractor.extract_from_url(
+        with self.assertRaises(
+            expected_exception=ValueError,
+        ):
+            self.domain_extractor.extract_from_url(
                 url,
-            ),
-            second={
-                'subdomain': '',
-                'domain': '',
-                'suffix': '',
-            },
-        )
+            )
 
     def test_scheme_https(
         self,
@@ -1162,29 +1128,31 @@ class DomainExtractorTldExtractTestCase(
     def test_scheme(
         self,
     ):
-        self.assertEqual(
-            first=self.domain_extractor.extract_from_url(
+        with self.assertRaises(
+            expected_exception=ValueError,
+        ) as expected_exception:
+            self.domain_extractor.extract_from_url(
                 '//mail.google.com/mail',
-            ),
-            second={
-                'subdomain': 'mail',
-                'domain': 'google',
-                'suffix': 'com',
-            },
+            )
+
+        self.assertEqual(
+            first=str(expected_exception.exception),
+            second='url is invalid: no scheme',
         )
 
     def test_no_scheme(
         self,
     ):
-        self.assertEqual(
-            first=self.domain_extractor.extract_from_url(
+        with self.assertRaises(
+            expected_exception=ValueError,
+        ) as expected_exception:
+            self.domain_extractor.extract_from_url(
                 'mail.google.com/mail',
-            ),
-            second={
-                'subdomain': 'mail',
-                'domain': 'google',
-                'suffix': 'com',
-            },
+            )
+
+        self.assertEqual(
+            first=str(expected_exception.exception),
+            second='url is invalid: no scheme',
         )
 
     def test_port(
@@ -1340,16 +1308,12 @@ class DomainExtractorTldExtractTestCase(
         self,
     ):
         url = 'http://www.example.com./'
-        self.assertEqual(
-            first=self.domain_extractor.extract_from_url(
+        with self.assertRaises(
+            expected_exception=ValueError,
+        ):
+            self.domain_extractor.extract_from_url(
                 url,
-            ),
-            second={
-                'subdomain': 'www',
-                'domain': 'example',
-                'suffix': 'coom',
-            },
-        )
+            )
 
     def test_private_domains(
         self,
@@ -1360,54 +1324,9 @@ class DomainExtractorTldExtractTestCase(
                 url,
             ),
             second={
-                'subdomain': 'waiterrant',
-                'domain': 'blogspot',
-                'suffix': 'com',
-            },
-        )
-
-    def test_ipv4(
-        self,
-    ):
-        url = 'http://127.0.0.1/foo/bar'
-        self.assertEqual(
-            first=self.domain_extractor.extract_from_url(
-                url,
-            ),
-            second={
                 'subdomain': '',
-                'domain': '127.0.0.1',
-                'suffix': '',
-            },
-        )
-
-    def test_ipv4_bad(
-        self,
-    ):
-        url = 'http://256.256.256.256/foo/bar'
-        self.assertEqual(
-            first=self.domain_extractor.extract_from_url(
-                url,
-            ),
-            second={
-                'subdomain': '256.256.256',
-                'domain': '256',
-                'suffix': '',
-            },
-        )
-
-    def test_ipv4_lookalike(
-        self,
-    ):
-        url = 'http://127.0.0.1.9/foo/bar'
-        self.assertEqual(
-            first=self.domain_extractor.extract_from_url(
-                url,
-            ),
-            second={
-                'subdomain': '127.0.0.1',
-                'domain': '9',
-                'suffix': '',
+                'domain': 'waiterrant',
+                'suffix': 'blogspot.com',
             },
         )
 
