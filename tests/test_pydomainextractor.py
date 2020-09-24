@@ -14,6 +14,7 @@ class DomainExtractorExtractionTestCase(
 
     def test_extract_only_tld(
         self,
+
     ):
         self.assertEqual(
             first=self.domain_extractor.extract('com'),
@@ -629,6 +630,22 @@ class DomainExtractorExtractionTestCase(
                 'suffix': 'com',
             },
         )
+        self.assertEqual(
+            first=self.domain_extractor.extract_from_url('//admin:password1@www.google.com:666/secret/admin/interface?param1=42'),
+            second={
+                'subdomain': 'www',
+                'domain': 'google',
+                'suffix': 'com',
+            },
+        )
+        self.assertEqual(
+            first=self.domain_extractor.extract_from_url('//mail.google.com/mail'),
+            second={
+                'subdomain': 'mail',
+                'domain': 'google',
+                'suffix': 'com',
+            },
+        )
 
     def test_is_valid_domain(
         self,
@@ -801,6 +818,38 @@ class DomainExtractorLoadTestCase(
                 'suffix': 'custom.tld',
             },
         )
+
+    def test_get_tld_list(
+        self,
+    ):
+        domain_extractor = pydomainextractor.DomainExtractor(
+            'com\n'
+        )
+
+        self.assertEqual(
+            first=domain_extractor.get_tld_list(),
+            second=[
+                'com',
+            ],
+        )
+
+        domain_extractor = pydomainextractor.DomainExtractor(
+            'com\n'
+            'net\n'
+            'org\n'
+            'uk.com\n'
+        )
+
+        self.assertCountEqual(
+            first=domain_extractor.get_tld_list(),
+            second=[
+                'com',
+                'net',
+                'org',
+                'uk.com',
+            ],
+        )
+
 
 class DomainExtractorTldExtractTestCase(
     unittest.TestCase,

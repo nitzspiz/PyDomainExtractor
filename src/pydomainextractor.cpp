@@ -277,16 +277,13 @@ typedef struct {
 } DomainExtractorObject;
 
 
-static void
-DomainExtractor_dealloc(DomainExtractorObject *self)
-{
+static void DomainExtractor_dealloc(DomainExtractorObject *self) {
     Py_TYPE(self)->tp_free((PyObject *) self);
     self->domain_extractor.reset();
 }
 
-static PyObject *
-DomainExtractor_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
-{
+
+static PyObject * DomainExtractor_new(PyTypeObject *type, PyObject *args, PyObject *kwds) {
     DomainExtractorObject *self;
     self = (DomainExtractorObject *) type->tp_alloc(type, 0);
 
@@ -294,9 +291,7 @@ DomainExtractor_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 }
 
 
-static int
-DomainExtractor_init(DomainExtractorObject *self, PyObject *args, PyObject *kwds)
-{
+static int DomainExtractor_init(DomainExtractorObject *self, PyObject *args, PyObject *kwds) {
     const char * suffix_list_data = "";
 
     static char * kwlist[] = {
@@ -327,20 +322,11 @@ static PyMemberDef DomainExtractor_members[] = {
 PyObject * subdomain_key_py = PyUnicode_FromString("subdomain");
 PyObject * domain_key_py = PyUnicode_FromString("domain");
 PyObject * suffix_key_py = PyUnicode_FromString("suffix");
-static PyObject *
-DomainExtractor_extract(
+static PyObject * DomainExtractor_extract(
     DomainExtractorObject * self,
-    PyObject * const* args,
-    Py_ssize_t nargs
-)
-{
-    if (nargs != 1) {
-        PyErr_SetString(PyExc_ValueError, "wrong number of arguments");
-
-        return NULL;
-    }
-
-    const char * input = PyUnicode_AsUTF8(args[0]);
+    PyObject * arg
+) {
+    const char * input = PyUnicode_AsUTF8(arg);
 
     try {
         auto extracted_domain = self->domain_extractor->extract(input);
@@ -391,29 +377,21 @@ DomainExtractor_extract(
     }
 }
 
-static PyObject *
-DomainExtractor_extract_from_url(
+
+static PyObject * DomainExtractor_extract_from_url(
     DomainExtractorObject * self,
-    PyObject * const* args,
-    Py_ssize_t nargs
-)
-{
-    if (nargs != 1) {
-        PyErr_SetString(PyExc_ValueError, "wrong number of arguments");
-
-        return NULL;
-    }
-
-    const char * input = PyUnicode_AsUTF8(args[0]);
+    PyObject * arg
+) {
+    const char * input = PyUnicode_AsUTF8(arg);
     std::string_view url(input);
 
-    std::size_t scheme_separator_position = url.find("://");
+    std::size_t scheme_separator_position = url.find("//");
     if (scheme_separator_position == std::string::npos) {
         PyErr_SetString(PyExc_ValueError, "url is invalid: no scheme");
 
         return NULL;
     }
-    url = url.substr(scheme_separator_position + 3);
+    url = url.substr(scheme_separator_position + 2);
 
     std::size_t path_separator = url.find("/");
     if (path_separator != std::string::npos) {
@@ -480,20 +458,12 @@ DomainExtractor_extract_from_url(
     }
 }
 
-static PyObject *
-DomainExtractor_is_valid_domain(
+
+static PyObject * DomainExtractor_is_valid_domain(
     DomainExtractorObject * self,
-    PyObject * const* args,
-    Py_ssize_t nargs
-)
-{
-    if (nargs != 1) {
-        PyErr_SetString(PyExc_ValueError, "wrong number of arguments");
-
-        return NULL;
-    }
-
-    const char * input = PyUnicode_AsUTF8(args[0]);
+    PyObject * arg
+) {
+    const char * input = PyUnicode_AsUTF8(arg);
 
     auto valid_domain = self->domain_extractor->is_valid_domain(std::string(input));
     if (valid_domain == true) {
@@ -504,24 +474,45 @@ DomainExtractor_is_valid_domain(
 }
 
 
+static PyObject * DomainExtractor_get_tld_list(
+    DomainExtractorObject * self,
+    PyObject * const* noargs
+) {
+    auto tlds = PyList_New(self->domain_extractor->known_tlds.size());
+    int i = 0;
+    for (auto tld: self->domain_extractor->known_tlds) {
+        PyList_SET_ITEM(tlds, i, PyUnicode_FromString(tld.c_str()));
+        i++;
+    }
+
+    return tlds;
+}
+
+
 static PyMethodDef DomainExtractor_methods[] = {
     {
         "extract",
         (PyCFunction)DomainExtractor_extract,
-        METH_FASTCALL,
+        METH_O,
         "Extract a domain string into its parts\n\nextract(domain)\nArguments:\n\tdomain(str): the domain string to extract\nReturn:\n\tdict[str, str] -> The extracted parts as 'subdomain', 'domain', 'suffix'\n\n"
     },
     {
         "extract_from_url",
         (PyCFunction)DomainExtractor_extract_from_url,
-        METH_FASTCALL,
+        METH_O,
         "Extract a domain from a url into its parts\n\nextract_from_url(url)\nArguments:\n\turl(str): the url string to extract\nReturn:\n\tdict[str, str] -> The extracted parts as 'subdomain', 'domain', 'suffix'\n\n"
     },
     {
         "is_valid_domain",
         (PyCFunction)DomainExtractor_is_valid_domain,
-        METH_FASTCALL,
+        METH_O,
         "Checks whether a domain is a valid domain\n\nis_valid_domain(domain)\nArguments:\n\tdomain(str): the domain string to validate\nReturn:\n\tbool: True if valid or False if invalid\n\n"
+    },
+    {
+        "get_tld_list",
+        (PyCFunction)DomainExtractor_get_tld_list,
+        METH_NOARGS,
+        "Return a list of all the known tlds\n\nget_tld_list()\nArguments:\n\tNone\nReturn:\n\tlist[str]: list of tlds\n\n"
     },
     {NULL}  /* Sentinel */
 };

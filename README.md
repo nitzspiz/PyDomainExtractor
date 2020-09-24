@@ -8,7 +8,7 @@
 </p>
 
 ![license](https://img.shields.io/badge/MIT-License-blue)
-![Python](https://img.shields.io/badge/Python-3.6%20%7C%203.7%20%7C%203.8-blue)
+![Python](https://img.shields.io/badge/Python-3.6%20%7C%203.7%20%7C%203.8%20%7C%20PyPy3-blue)
 ![Build](https://github.com/Intsights/PyDomainExtractor/workflows/Build/badge.svg)
 [![PyPi](https://img.shields.io/pypi/v/PyDomainExtractor.svg)](https://pypi.org/project/PyDomainExtractor/)
 
@@ -26,6 +26,7 @@
   - [Extraction](#extraction)
   - [URL Extraction](#url-extraction)
   - [Validation](#validation)
+  - [TLDs List](#tlds-list)
 - [License](#license)
 - [Contact](#contact)
 
@@ -47,26 +48,26 @@ PyDomainExtractor is a library intended for parsing domain names into their part
 
 #### Extract From Domain
 
-Test was measured on a file containing 10 million random domains from various TLDs
+Test was measured on a file containing 10 million random domains from various TLDs (Sep. 24th 2020)
 
 | Library  | Function | Time |
 | ------------- | ------------- | ------------- |
-| [PyDomainExtractor](https://github.com/Intsights/PyDomainExtractor) | pydomainextractor.extract | 2.21s |
-| [publicsuffix2](https://github.com/nexb/python-publicsuffix2) | publicsuffix2.get_sld | 16.53s |
-| [tldextract](https://github.com/john-kurkowski/tldextract) | \_\_call\_\_ | 42.45s |
-| [tld](https://github.com/barseghyanartur/tld) | publicsuffix2.get_tld | 47.07s |
+| [PyDomainExtractor](https://github.com/Intsights/PyDomainExtractor) | pydomainextractor.extract | 2.30s |
+| [publicsuffix2](https://github.com/nexb/python-publicsuffix2) | publicsuffix2.get_sld | 25.77s |
+| [tldextract](https://github.com/john-kurkowski/tldextract) | \_\_call\_\_ | 34.22s |
+| [tld](https://github.com/barseghyanartur/tld) | tld.parse_tld | 36.64s |
 
 
 #### Extract From URL
 
-Test was measured on a file containing 1 million random urls
+Test was measured on a file containing 1 million random urls (Sep. 24th 2020)
 
 | Library  | Function | Time |
 | ------------- | ------------- | ------------- |
-| [PyDomainExtractor](https://github.com/Intsights/PyDomainExtractor) | pydomainextractor.extract | 0.28s |
-| [publicsuffix2](https://github.com/nexb/python-publicsuffix2) | publicsuffix2.get_sld | 1.91s |
-| [tldextract](https://github.com/john-kurkowski/tldextract) | \_\_call\_\_ | 5.55s |
-| [tld](https://github.com/barseghyanartur/tld) | publicsuffix2.get_tld | 5.98s |
+| [PyDomainExtractor](https://github.com/Intsights/PyDomainExtractor) | pydomainextractor.extract | 2.76s |
+| [publicsuffix2](https://github.com/nexb/python-publicsuffix2) | publicsuffix2.get_sld | 14.33s |
+| [tldextract](https://github.com/john-kurkowski/tldextract) | \_\_call\_\_ | 44.34s |
+| [tld](https://github.com/barseghyanartur/tld) | tld.parse_tld | 79.13s |
 
 
 ### Prerequisites
@@ -174,6 +175,25 @@ domain_extractor.is_valid_domain('-sub.domain.com')
 
 domain_extractor.is_valid_domain('\xF0\x9F\x98\x81nonalphanum.com')
 >>> False
+```
+
+
+### TLDs List
+
+```python
+import pydomainextractor
+
+
+# Loads the current supplied version of PublicSuffixList from the repository. Does not download any data.
+domain_extractor = pydomainextractor.DomainExtractor()
+
+domain_extractor.get_tld_list()
+>>> [
+>>>     'bostik',
+>>>     'backyards.banzaicloud.io',
+>>>     'biz.bb',
+>>>     ...
+>>> ]
 ```
 
 
