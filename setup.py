@@ -13,7 +13,7 @@ setuptools.setup(
         'Source': 'https://github.com/Intsights/PyDomainExtractor',
     },
     license='MIT',
-    description='Highly optimized Domain Name Extraction library written in C++',
+    description='Highly optimized Domain Name Extraction library written in C++!',
     long_description=open('README.md').read(),
     long_description_content_type='text/markdown',
     classifiers=[
